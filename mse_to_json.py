@@ -418,7 +418,11 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
     cards = [parse_mse_data(card) for card in set_data['card']]
     cards.sort(key=lambda card: card['name'])
     for card in cards:
-        card_name, result = normalize_card_name(more_itertools.one(card['name']))
+        result = {
+            'hasFoil': False,
+            'hasNonFoil': True
+        }
+        result['name'] = card_name = more_itertools.one(card['name']).replace('’', "'")
         try:
             layout = 'unknown'
             if 'stylesheet' in card:
@@ -436,7 +440,11 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             except KeyError as e:
                 raise KeyError('Unknown stylesheet: {}'.format(stylesheet)) from e
             if result['layout'] == 'transform':
-                name_back, result_back = normalize_card_name(more_itertools.one(card['name 2']))
+                result_back = {
+                    'hasFoil': False,
+                    'hasNonFoil': True
+                }
+                result_back['name'] = name_back = more_itertools.one(card['name 2']).replace('’', "'")
                 result['names'] = [
                     card_name,
                     name_back
@@ -759,13 +767,6 @@ def mtgjson_card_sort_key(card):
     number, suffix = match.groups()
     number = int(number)
     return number, suffix, card['name'], card.get('multiverseid')
-
-def normalize_card_name(card_name):
-    card_name = card_name.replace('’', "'")
-    return card_name, {
-        'name': card_name,
-        'imageName': image_name(card_name)
-    }
 
 def normalized_rules_text(text):
     text = text.replace('\u2212', '-') # replace Unicode minus used in Oracle text with ASCII hyphen-minus used in MSE
