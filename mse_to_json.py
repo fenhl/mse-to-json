@@ -411,7 +411,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
         set_json['meta']['setVersion'] = version
     # parse cards
     watermarks = BUILTIN_WATERMARKS.copy()
-    l = []
+    cards_json = []
     cards = [parse_mse_data(card) for card in set_data['card']]
     cards.sort(key=lambda card: card['name'])
     for card in cards:
@@ -735,14 +735,14 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 if flavor != '':
                     result_back['flavorText'] = flavor
             # add to list
-            l.append(result)
+            cards_json.append(result)
             if result['layout'] == 'transform':
-                l.append(result_back)
+                cards_json.append(result_back)
         except:
             print('[!!!!] Exception in card {!r}'.format(card_name), file=sys.stderr)
             raise
     # sort cards
-    sorted_cards = sorted(l, key=lambda card: MSECardSortKey.from_card(l, card))
+    sorted_cards = sorted(cards_json, key=lambda card: MSECardSortKey.from_card(cards_json, card))
     i = 0
     for card in sorted_cards:
         if card.get('layout', 'normal') == 'transform':
@@ -756,6 +756,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             card['number'] = str(i)
     # add to set file
     set_json['cards'] = sorted_cards
+    set_json['baseSetSize'] = set_json['totalSetSize'] = len(sorted_cards)
     return set_json
 
 def mtgjson_card_sort_key(card):
