@@ -451,6 +451,8 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 continue
             elif stylesheet in ('m15-mainframe-dfc', 'm15-doublefaced', 'm15-doublefaced-sparker', 'm15-doublefaced-borderable-sparker'):
                 layout = 'double-faced'
+            elif stylesheet == 'm15-saga':
+                layout = 'saga'
             elif stylesheet in ('m15-altered', 'm15', 'new', 'm15-improved', 'm15-legendary', 'm15-nyx', 'm15-clearartifact', 'm15-textless-land', 'm15-mainframe-planeswalker', 'm15-planeswalker', 'm15-planeswalker-2abil', 'm15-planeswalker-clear', 'new-planeswalker', 'new-planeswalker-4abil-clear', 'COTWC-m15planeswalker'):
                 layout = 'normal'
             if layout == 'unknown':
@@ -536,7 +538,17 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             for land_type, land_color in BASIC_LAND_TYPES.items():
                 if land_type in subtypes:
                     ci.add(land_color)
-            if 'level 1 text' in card:
+            if result['layout'] == 'saga':
+                text, parse_ci = parse_mse_text(more_itertools.one(card['special text']))
+                if more_itertools.one(card.get('has styling', ['no'])) == 'yes':
+                    styling_data = parse_mse_data(more_itertools.one(card['styling data']))
+                else:
+                    styling_data = parse_mse_data(more_itertools.one(parse_mse_data(more_itertools.one(set_data['styling']))['magic-m15-saga']))
+                if styling_data.get('discovery') == ['yes']:
+                    text = re.sub('^III — ', '{DISCOVER} — ', text, 1, re.MULTILINE)
+                ci |= parse_ci
+                update_text(result, text)
+            elif 'level 1 text' in card:
                 level_parse_result, level_ci = parse_mse_text(more_itertools.one(card['level 1 text']))
                 ci |= level_ci
                 if 'loyalty cost 1' in card:
