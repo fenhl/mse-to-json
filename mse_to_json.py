@@ -330,7 +330,7 @@ def converted_mana_cost(cost):
         return 0
     if cost[0] != '{' or cost[-1] != '}':
         raise ValueError('Cost must start with { and end with }')
-    return sum(converted_cost_part(part) for part in cost[1:-1].split('}{'))
+    return float(sum(converted_cost_part(part) for part in cost[1:-1].split('}{')))
 
 def image_name(card_name):
     result = card_name.lower()
@@ -454,10 +454,10 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             else:
                 mana_cost = ''
             if mana_cost == '':
-                result['cmc'] = 0
+                result['convertedManaCost'] = result['faceConvertedManaCost'] = 0.0
             else:
                 result['manaCost'] = mana_cost
-                result['cmc'] = converted_mana_cost(mana_cost)
+                result['convertedManaCost'] = result['faceConvertedManaCost'] = converted_mana_cost(mana_cost)
             if stylesheet in MAINFRAME_STYLESHEETS:
                 pass #TODO check if front color indicator style option (in card['styling data']) is enabled
                 #if 'indicator' in card and more_itertools.one(card['indicator']) != 'colorless':
@@ -577,7 +577,8 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             if result['layout'] == 'transform':
                 result_back['layout'] = result['layout']
                 result_back['names'] = result['names']
-                result_back['cmc'] = result['cmc']
+                result_back['convertedManaCost'] = result['convertedManaCost']
+                result_back['faceConvertedManaCost'] = 0.0
                 back_colors = more_itertools.one(card['card color 2'])
                 if 'land' in back_colors.split(', '):
                     back_colors = 'colorless'
