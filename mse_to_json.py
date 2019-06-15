@@ -428,7 +428,6 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
         }[more_itertools.one(card.get('border color', set_info.get('border color', ['rgb(0,0,0)'])))]
         result['name'] = card_name = more_itertools.one(card['name']).replace('’', "'")
         try:
-            layout = 'unknown'
             if 'stylesheet' in card:
                 stylesheet = more_itertools.one(card['stylesheet'])
             else:
@@ -444,9 +443,11 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             except KeyError as e:
                 raise KeyError('Unknown stylesheet: {}'.format(stylesheet)) from e
             if result['layout'] == 'transform':
+                result['side'] = 'a'
                 result_back = {
                     'hasFoil': False,
-                    'hasNonFoil': True
+                    'hasNonFoil': True,
+                    'side': 'b'
                 }
                 result_back['name'] = name_back = more_itertools.one(card['name 2']).replace('’', "'")
                 result['names'] = [
