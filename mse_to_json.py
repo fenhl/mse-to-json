@@ -74,6 +74,29 @@ MAINFRAME_STYLESHEETS = {
     'm15-mainframe-planeswalker'
 }
 
+STYLESHEETS = {
+    'COTWC-m15planeswalker': ('normal', '2015'),
+    'm15': ('normal', '2015'),
+    'm15-altered': ('normal', '2015'),
+    'm15-clearartifact': ('normal', '2015'),
+    'm15-doublefaced': ('transform', '2015'),
+    'm15-doublefaced-borderable-sparker': ('transform', '2015'),
+    'm15-doublefaced-sparker': ('transform', '2015'),
+    'm15-improved': ('normal', '2015'),
+    'm15-legendary': ('normal', '2015'),
+    'm15-mainframe-dfc': ('transform', '2015'),
+    'm15-mainframe-planeswalker': ('normal', '2015'),
+    'm15-nyx': ('normal', '2015'),
+    'm15-planeswalker': ('normal', '2015'),
+    'm15-planeswalker-2abil': ('normal', '2015'),
+    'm15-planeswalker-clear': ('normal', '2015'),
+    'm15-saga': ('saga', '2015'),
+    'm15-textless-land': ('normal', '2015'),
+    'new': ('normal', '2003'),
+    'new-planeswalker': ('normal', '2003'),
+    'new-planeswalker-4abil-clear': ('normal', '2003')
+}
+
 class CommandLineArgs:
     def __init__(self, args=sys.argv[1:]):
         self.decode_only = False
@@ -408,17 +431,11 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             elif stylesheet in ('m15-emblem-acorntail', 'm15-emblem-name-cut', 'm15-emblem-cajun'):
                 print('[ ** ] skipping emblem for {}'.format(more_itertools.one(card['sub type'])), file=sys.stderr)
                 continue
-            elif stylesheet in ('m15-mainframe-dfc', 'm15-doublefaced', 'm15-doublefaced-sparker', 'm15-doublefaced-borderable-sparker'):
-                layout = 'double-faced'
-            elif stylesheet == 'm15-saga':
-                layout = 'saga'
-            elif stylesheet in ('m15-altered', 'm15', 'new', 'm15-improved', 'm15-legendary', 'm15-nyx', 'm15-clearartifact', 'm15-textless-land', 'm15-mainframe-planeswalker', 'm15-planeswalker', 'm15-planeswalker-2abil', 'm15-planeswalker-clear', 'new-planeswalker', 'new-planeswalker-4abil-clear', 'COTWC-m15planeswalker'):
-                layout = 'normal'
-            if layout == 'unknown':
-                raise ValueError('Unknown stylesheet: {}'.format(stylesheet))
-            else:
-                result['layout'] = layout
-            if result['layout'] == 'double-faced':
+            try:
+                result['layout'], result['frameVersion'] = STYLESHEETS[stylesheet]
+            except KeyError as e:
+                raise KeyError('Unknown stylesheet: {}'.format(stylesheet)) from e
+            if result['layout'] == 'transform':
                 name_back, result_back = normalize_card_name(more_itertools.one(card['name 2']))
                 result['names'] = [
                     card_name,
@@ -557,7 +574,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             if 'Planeswalker' in result.get('types', []):
                 if 'loyalty' in card and more_itertools.one(card['loyalty']) != '':
                     result['loyalty'] = int(more_itertools.one(card['loyalty'])) #TODO support X starting loyalty
-            if result['layout'] == 'double-faced':
+            if result['layout'] == 'transform':
                 result_back['layout'] = result['layout']
                 result_back['names'] = result['names']
                 result_back['cmc'] = result['cmc']
@@ -636,7 +653,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 if 'Planeswalker' in result_back.get('types', []):
                     if 'loyalty' in card and more_itertools.one(card['loyalty 2']) != '':
                         result_back['loyalty'] = int(more_itertools.one(card['loyalty 2']))
-            if result['layout'] == 'double-faced':
+            if result['layout'] == 'transform':
                 result_back['colorIdentity'] = sorted(ci, key='WUBRG'.index)
             result['colorIdentity'] = sorted(ci, key='WUBRG'.index)
             if 'rarity' in card:
@@ -683,7 +700,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 result['artist'] = '(no image)'
             if flavor != '':
                 result['flavorText'] = flavor
-            if result['layout'] == 'double-faced':
+            if result['layout'] == 'transform':
                 result_back['rarity'] = result['rarity']
                 if 'flavor text 2' in card:
                     flavor = parse_mse_text(more_itertools.one(card['flavor text 2']), ignore_soft_newlines=False)[0].rstrip()
@@ -709,7 +726,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                     result_back['flavorText'] = flavor
             # add to list
             l.append(result)
-            if result['layout'] == 'double-faced':
+            if result['layout'] == 'transform':
                 l.append(result_back)
         except:
             print('[!!!!] Exception in card {!r}'.format(card_name), file=sys.stderr)
@@ -718,7 +735,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
     sorted_cards = sorted(l, key=lambda card: MSECardSortKey.from_card(l, card))
     i = 0
     for card in sorted_cards:
-        if card.get('layout', 'normal') == 'double-faced':
+        if card.get('layout', 'normal') == 'transform':
             if card['name'] == card['names'][0]:
                 i += 1
                 card['number'] = '{}a'.format(i)
