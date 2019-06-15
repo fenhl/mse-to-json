@@ -578,7 +578,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 result['toughness'] = more_itertools.one(card['toughness'])
             if 'Planeswalker' in result.get('types', []):
                 if 'loyalty' in card and more_itertools.one(card['loyalty']) != '':
-                    result['loyalty'] = int(more_itertools.one(card['loyalty'])) #TODO support X starting loyalty
+                    result['loyalty'] = more_itertools.one(card['loyalty'])
             if result['layout'] == 'transform':
                 result_back['layout'] = result['layout']
                 result_back['names'] = result['names']
@@ -657,8 +657,8 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 if 'toughness 2' in card and more_itertools.one(card['toughness 2']) != '':
                     result_back['toughness'] = more_itertools.one(card['toughness 2'])
                 if 'Planeswalker' in result_back.get('types', []):
-                    if 'loyalty' in card and more_itertools.one(card['loyalty 2']) != '':
-                        result_back['loyalty'] = int(more_itertools.one(card['loyalty 2']))
+                    if 'loyalty 2' in card and more_itertools.one(card['loyalty 2']) != '':
+                        result_back['loyalty'] = more_itertools.one(card['loyalty 2'])
             if result['layout'] == 'transform':
                 result_back['colorIdentity'] = sorted(ci, key='WUBRG'.index)
             result['colorIdentity'] = sorted(ci, key='WUBRG'.index)
