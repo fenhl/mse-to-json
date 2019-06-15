@@ -723,7 +723,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             else:
                 result['artist'] = '(no image)'
             if flavor != '':
-                result['flavor'] = flavor
+                result['flavorText'] = flavor
             if result['layout'] == 'double-faced':
                 result_back['rarity'] = result['rarity']
                 if 'flavor text 2' in card:
@@ -747,7 +747,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 else:
                     result_back['artist'] = '(no image)'
                 if flavor != '':
-                    result_back['flavor'] = flavor
+                    result_back['flavorText'] = flavor
             # add to list
             l.append(result)
             if result['layout'] == 'double-faced':
