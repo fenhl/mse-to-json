@@ -14,11 +14,11 @@ import string
 import zipfile
 
 BASIC_LAND_TYPES = collections.OrderedDict([
-    ('Plains', 'White'),
-    ('Island', 'Blue'),
-    ('Swamp', 'Black'),
-    ('Mountain', 'Red'),
-    ('Forest', 'Green')
+    ('Plains', 'W'),
+    ('Island', 'U'),
+    ('Swamp', 'B'),
+    ('Mountain', 'R'),
+    ('Forest', 'G')
 ])
 
 BUILTIN_WATERMARKS = {
@@ -67,40 +67,12 @@ CARD_TYPES = [
     'Vanguard'
 ]
 
-COLOR_ABBREVIATIONS = {
-    'W': 'White',
-    'U': 'Blue',
-    'B': 'Black',
-    'R': 'Red',
-    'G': 'Green'
-}
-
 MAINFRAME_STYLESHEETS = {
     'm15-altered',
     'm15-mainframe-tokens',
     'm15-mainframe-dfc',
     'm15-mainframe-planeswalker'
 }
-
-REPRINT_KEYS = [ # keys which should be the same for all printings of a card
-    'layout',
-    'names',
-    'manaCost',
-    'cmc',
-    'colors',
-    'colorIdentity',
-    'type',
-    'supertypes',
-    'types',
-    'subtypes',
-    'text',
-    'power',
-    'toughness',
-    'loyalty',
-    'reserved',
-    #'rulings', # migrated differently
-    #'legalities' # recalculated by magic-search-engine
-]
 
 class CommandLineArgs:
     def __init__(self, args=sys.argv[1:]):
@@ -167,11 +139,11 @@ class OrderedEnum(enum.Enum):
 
 class MSECardSortKey(OrderedEnum):
     TRUE_COLORLESS = enum.auto()
-    WHITE = enum.auto()
-    BLUE = enum.auto()
-    BLACK = enum.auto()
-    RED = enum.auto()
-    GREEN = enum.auto()
+    W = enum.auto()
+    U = enum.auto()
+    B = enum.auto()
+    R = enum.auto()
+    G = enum.auto()
     GOLD = enum.auto()
     HYBRID = enum.auto()
     ARTIFACT = enum.auto()
@@ -345,12 +317,12 @@ def image_name(card_name):
             raise NotImplementedError('Failed to generate image name from {} due to {!r}'.format(card_name, c))
     return result
 
-def implicit_colors(cost, short=False):
+def implicit_colors(cost):
     def cost_part_colors(part):
         basics = '[WUBRG]'
         if re.fullmatch(basics, part):
             # colored mana
-            return {COLOR_ABBREVIATIONS[part]}
+            return {part}
         if part == 'A':
             # runic mana from Ruins of Doharum
             return set()
@@ -368,13 +340,13 @@ def implicit_colors(cost, short=False):
             return set()
         if re.fullmatch('{}/{}'.format(basics, basics), part):
             # colored/colored hybrid mana
-            return {COLOR_ABBREVIATIONS[half] for half in part.split('/')}
+            return set(part.split('/'))
         if re.fullmatch('{}/P'.format(basics), part):
             # Phyrexian mana
-            return {COLOR_ABBREVIATIONS[part[0]]}
+            return {part[0]}
         if re.fullmatch('2/{}'.format(basics), part):
             # colorless/colored hybrid mana
-            return {COLOR_ABBREVIATIONS[part[2]]}
+            return {part[2]}
         raise ValueError('Unknown mana cost part: {{{}}}'.format(part))
 
     if cost is None or cost == '':
@@ -384,20 +356,7 @@ def implicit_colors(cost, short=False):
     colors = set()
     for part in cost[1:-1].split('}{'):
         colors |= cost_part_colors(part)
-    result = []
-    for color in ('White', 'Blue', 'Black', 'Red', 'Green'):
-        if color in colors:
-            if short:
-                result.append({
-                    'White': 'W',
-                    'Blue': 'U',
-                    'Black': 'B',
-                    'Red': 'R',
-                    'Green': 'G'
-                }[color])
-            else:
-                result.append(color)
-    return result
+    return [color for color in 'WUBRG' if color in colors]
 
 def update_text(result_dict, new_text):
     result_dict['text'] = result_dict['originalText'] = new_text
@@ -502,7 +461,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 else:
                     color_indicator = None
             if color_indicator is None:
-                colors = ''.join(implicit_colors(mana_cost, short=True) or 'C')
+                colors = ''.join(implicit_colors(mana_cost) or 'C')
             else:
                 colors = {
                     'colorless': 'C',
@@ -517,7 +476,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             if colors == 'C':
                 result['colors'] = []
             else:
-                result['colors'] = [COLOR_ABBREVIATIONS[color.upper()] for color in colors]
+                result['colors'] = [color.upper() for color in colors]
             ci = set(implicit_colors(mana_cost)) #TODO color indicator
             supertypes_and_types = parse_mse_text(more_itertools.one(card['super type']))[0]
             subtypes = parse_mse_text(more_itertools.one(card['sub type']))[0].strip()
@@ -631,7 +590,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 if back_colors == 'C':
                     result_back['colors'] = []
                 else:
-                    result_back['colors'] = [COLOR_ABBREVIATIONS[color.upper()] for color in back_colors]
+                    result_back['colors'] = [color.upper() for color in back_colors]
                 ci |= set(result_back['colors'])
                 supertypes_and_types = parse_mse_text(more_itertools.one(card['super type 2']))[0]
                 subtypes = parse_mse_text(more_itertools.one(card['sub type 2']))[0].strip()
@@ -678,8 +637,8 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                     if 'loyalty' in card and more_itertools.one(card['loyalty 2']) != '':
                         result_back['loyalty'] = int(more_itertools.one(card['loyalty 2']))
             if result['layout'] == 'double-faced':
-                result_back['colorIdentity'] = sorted(({'White': 'W', 'Blue': 'U', 'Black': 'B', 'Red': 'R', 'Green': 'G'}[c] for c in ci), key=lambda c: 'WUBRG'.index(c))
-            result['colorIdentity'] = sorted(({'White': 'W', 'Blue': 'U', 'Black': 'B', 'Red': 'R', 'Green': 'G'}[c] for c in ci), key=lambda c: 'WUBRG'.index(c))
+                result_back['colorIdentity'] = sorted(ci, key='WUBRG'.index)
+            result['colorIdentity'] = sorted(ci, key='WUBRG'.index)
             if 'rarity' in card:
                 result['rarity'] = {
                     'basic land': 'Basic Land',
@@ -785,14 +744,6 @@ def normalize_card_name(card_name):
         'name': card_name,
         'imageName': image_name(card_name)
     }
-
-def normalized_card(card_data):
-    result = {key: value for key, value in card_data.items() if key in REPRINT_KEYS}
-    if 'colors' not in result:
-        result['colors'] = []
-    if 'text' in result:
-        result['text'] = normalized_rules_text(result['text'])
-    return result
 
 def normalized_rules_text(text):
     text = text.replace('\u2212', '-') # replace Unicode minus used in Oracle text with ASCII hyphen-minus used in MSE
