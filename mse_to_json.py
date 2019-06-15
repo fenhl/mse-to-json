@@ -419,6 +419,13 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             'hasFoil': False,
             'hasNonFoil': True
         }
+        result['borderColor'] = {
+            'rgb(0,0,0)': 'black',
+            'rgb(128,128,128)': 'silver',
+            'rgb(200,180,0)': 'gold',
+            'rgb(222,127,50)': 'bronze',
+            'rgb(255,255,255)': 'white'
+        }[more_itertools.one(card.get('border color', set_info.get('border color', ['rgb(0,0,0)'])))]
         result['name'] = card_name = more_itertools.one(card['name']).replace('’', "'")
         try:
             layout = 'unknown'
