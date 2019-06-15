@@ -658,16 +658,20 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 result_back['colorIdentity'] = sorted(ci, key='WUBRG'.index)
             result['colorIdentity'] = sorted(ci, key='WUBRG'.index)
             if 'rarity' in card:
+                if more_itertools.one(card['rarity']) == 'basic land':
+                    print('[ !! ] MTG JSON 4 does not support basic land rarity, changing {} to common'.format(card_name), file=sys.stderr)
+                if more_itertools.one(card['rarity']) == 'special':
+                    print('[ !! ] MTG JSON 4 does not support special rarity, changing {} to mythic'.format(card_name), file=sys.stderr)
                 result['rarity'] = {
-                    'basic land': 'Basic Land',
-                    'common': 'Common',
-                    'uncommon': 'Uncommon',
-                    'rare': 'Rare',
-                    'mythic rare': 'Mythic Rare',
-                    'special': 'Special'
+                    'basic land': 'common',
+                    'common': 'common',
+                    'uncommon': 'uncommon',
+                    'rare': 'rare',
+                    'mythic rare': 'mythic',
+                    'special': 'mythic'
                 }[more_itertools.one(card['rarity'])]
             else:
-                result['rarity'] = 'Common'
+                result['rarity'] = 'common'
             if 'flavor text' in card:
                 flavor = parse_mse_text(more_itertools.one(card['flavor text']), ignore_soft_newlines=False)[0].rstrip()
             else:
