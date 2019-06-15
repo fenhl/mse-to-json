@@ -23,24 +23,25 @@ BASIC_LAND_TYPES = collections.OrderedDict([
 ])
 
 BUILTIN_WATERMARKS = {
-    'mana symbol colorless': 'Colorless',
-    'mana symbol white': 'White',
-    'mana symbol blue': 'Blue',
-    'mana symbol black': 'Black',
-    'mana symbol red': 'Red',
-    'mana symbol green': 'Green',
-    'other magic symbols story spotlight': 'Planeswalker',
-    'other magic symbols color spotlight': 'Planeswalker',
-    'xander hybrid mana W/U': 'White-Blue',
-    'xander hybrid mana U/B': 'Blue-Black',
-    'xander hybrid mana B/R': 'Black-Red',
-    'xander hybrid mana R/G': 'Red-Green',
-    'xander hybrid mana G/W': 'Green-White',
-    'xander hybrid mana W/B': 'White-Black',
-    'xander hybrid mana U/R': 'Blue-Red',
-    'xander hybrid mana B/G': 'Black-Green',
-    'xander hybrid mana R/W': 'Red-White',
-    'xander hybrid mana G/U': 'Green-Blue'
+    #TODO some of these may have to be adjusted once they land in MTG JSON 4, see https://github.com/mtgjson/mtgjson/issues/382
+    'mana symbol colorless': 'colorless',
+    'mana symbol white': 'white',
+    'mana symbol blue': 'blue',
+    'mana symbol black': 'black',
+    'mana symbol red': 'red',
+    'mana symbol green': 'green',
+    'other magic symbols story spotlight': 'planeswalker',
+    'other magic symbols color spotlight': 'planeswalker',
+    'xander hybrid mana W/U': 'white-blue',
+    'xander hybrid mana U/B': 'blue-black',
+    'xander hybrid mana B/R': 'black-red',
+    'xander hybrid mana R/G': 'red-green',
+    'xander hybrid mana G/W': 'green-white',
+    'xander hybrid mana W/B': 'white-black',
+    'xander hybrid mana U/R': 'blue-red',
+    'xander hybrid mana B/G': 'black-green',
+    'xander hybrid mana R/W': 'red-white',
+    'xander hybrid mana G/U': 'green-blue'
 }
 
 CARD_SUPERTYPES = [
