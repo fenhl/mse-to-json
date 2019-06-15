@@ -602,40 +602,36 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 result_back['layout'] = result['layout']
                 result_back['names'] = result['names']
                 result_back['cmc'] = result['cmc']
-                back_color = more_itertools.one(card['card color 2'])
-                if 'land' in back_color.split(', '):
-                    back_color = 'colorless'
-                back_color = ', '.join(
-                    part
-                    for part in back_color.split(', ')
-                    if part not in {'colorless', 'multicolor', 'artifact', 'land', 'horizontal'}
-                )
-                colors = {
-                    '': 'C',
-                    'white': 'W',
-                    'blue': 'U',
-                    'black': 'B',
-                    'red': 'R',
-                    'green': 'G'
-                }[back_color]
-                if 'indicator 2' in card:
-                    color_indicator = ', '.join(
-                        part
-                        for part in more_itertools.one(card['indicator 2']).split(', ')
-                        if part not in {'colorless', 'multicolor', 'artifact', 'land', 'horizontal'}
-                    )
-                    colors = {
-                        '': 'C',
+                back_colors = more_itertools.one(card['card color 2'])
+                if 'land' in back_colors.split(', '):
+                    back_colors = 'colorless'
+                back_colors = ''.join(
+                    {
                         'white': 'W',
                         'blue': 'U',
                         'black': 'B',
                         'red': 'R',
                         'green': 'G'
-                    }[color_indicator]
-                if colors == 'C':
+                    }[part]
+                    for part in back_colors.split(', ')
+                    if part not in {'colorless', 'multicolor', 'artifact', 'land', 'horizontal'}
+                )
+                if 'indicator 2' in card:
+                    back_colors = ''.join(
+                        {
+                            'white': 'W',
+                            'blue': 'U',
+                            'black': 'B',
+                            'red': 'R',
+                            'green': 'G'
+                        }[part]
+                        for part in more_itertools.one(card['indicator 2']).split(', ')
+                        if part not in {'colorless', 'multicolor', 'artifact', 'land', 'horizontal'}
+                    )
+                if back_colors == 'C':
                     result_back['colors'] = []
                 else:
-                    result_back['colors'] = [COLOR_ABBREVIATIONS[color.upper()] for color in colors]
+                    result_back['colors'] = [COLOR_ABBREVIATIONS[color.upper()] for color in back_colors]
                 ci |= set(result_back['colors'])
                 supertypes_and_types = parse_mse_text(more_itertools.one(card['super type 2']))[0]
                 subtypes = parse_mse_text(more_itertools.one(card['sub type 2']))[0].strip()
