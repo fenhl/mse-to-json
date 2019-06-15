@@ -504,11 +504,12 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                     'red': 'R',
                     'green': 'G'
                 }[color_indicator]
+                result['colorIndicator'] = [color.upper() for color in colors]
             if colors == 'C':
                 result['colors'] = []
             else:
                 result['colors'] = [color.upper() for color in colors]
-            ci = set(implicit_colors(mana_cost)) #TODO color indicator
+            ci = set(implicit_colors(mana_cost)) | set(result.get('colorIndicator', []))
             supertypes_and_types = parse_mse_text(more_itertools.one(card['super type']))[0]
             subtypes = parse_mse_text(more_itertools.one(card['sub type']))[0].strip()
             if len(subtypes) > 0:
@@ -622,7 +623,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 if back_colors == 'C':
                     result_back['colors'] = []
                 else:
-                    result_back['colors'] = [color.upper() for color in back_colors]
+                    result_back['colors'] = result_back['colorIndicator'] = [color.upper() for color in back_colors]
                 ci |= set(result_back['colors'])
                 supertypes_and_types = parse_mse_text(more_itertools.one(card['super type 2']))[0]
                 subtypes = parse_mse_text(more_itertools.one(card['sub type 2']))[0].strip()
