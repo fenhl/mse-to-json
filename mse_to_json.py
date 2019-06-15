@@ -573,7 +573,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 else:
                     if 'Structure' not in result.get('subtypes', []):
                         print('[ !! ] assigning stability to non-Structure card {}'.format(card_name), file=sys.stderr)
-                    result['stability'] = int(more_itertools.one(card['power'])) #TODO support X starting stability
+                    result['stability'] = more_itertools.one(card['power'])
             if 'toughness' in card and more_itertools.one(card['toughness']) != '':
                 result['toughness'] = more_itertools.one(card['toughness'])
             if 'Planeswalker' in result.get('types', []):
