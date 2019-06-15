@@ -3,6 +3,7 @@
 import sys
 
 import collections
+import datetime
 import enum
 import html.parser
 import io
@@ -385,7 +386,6 @@ def update_text(result_dict, new_text):
     result_dict['text'] = result_dict['originalText'] = new_text
 
 def convert_mse_set(set_file, *, set_code=None, version=None):
-    o = {}
     # open MSE data file and parse top level
     with set_file.open('set') as set_data_f:
         set_data_str = set_data_f.read().decode('utf-8')
@@ -396,22 +396,19 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
     if set_code is None:
         if 'set code' in set_info:
             set_code = more_itertools.one(set_info['set code'])
-    if 'code' not in o:
-        o['code'] = set_code
-    if 'cards' not in o:
-        o['cards'] = []
-    if 'border' not in o:
-        o['border'] = 'black'
-    if 'custom' not in o:
-        o['custom'] = True
-    if 'name' not in o:
-        if 'title' in set_info:
-            o['name'] = more_itertools.one(set_info['title'])
-    if version is None:
-        if 'version' in o:
-            del o['version']
-    else:
-        o['version'] = version
+    set_json = {
+        'cards': [],
+        'code': set_code,
+        'custom': True,
+        'meta': {
+            'date': '{:%Y-%m-%d}'.format(datetime.datetime.utcnow()),
+            'version': '4.4.1'
+        }
+    }
+    if 'title' in set_info:
+        set_json['name'] = more_itertools.one(set_info['title'])
+    if version is not None:
+        set_json['meta']['setVersion'] = version
     # parse cards
     watermarks = BUILTIN_WATERMARKS.copy()
     l = []
@@ -758,8 +755,8 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             i += 1
             card['number'] = str(i)
     # add to set file
-    o['cards'] = sorted_cards
-    return o
+    set_json['cards'] = sorted_cards
+    return set_json
 
 def mtgjson_card_sort_key(card):
     match = re.fullmatch('([0-9]+)(.*)', card['number'])
@@ -882,6 +879,6 @@ if __name__ == '__main__':
             sys.exit('[!!!!] this version of mse-to-json does not support manual card input')
         else:
             with args.set_file as set_file:
-                o = convert_mse_set(set_file, set_code=set_code, version=args.set_version)
-        json.dump(o, sys.stdout, indent=4, sort_keys=True)
+                set_json = convert_mse_set(set_file, set_code=set_code, version=args.set_version)
+        json.dump(set_json, sys.stdout, indent=4, sort_keys=True)
         print()
