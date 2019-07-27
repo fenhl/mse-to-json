@@ -9,7 +9,7 @@ import html.parser
 import io
 import itertools
 import json
-import more_itertools
+import more_itertools # package: more-itertools
 import re
 import string
 import zipfile
