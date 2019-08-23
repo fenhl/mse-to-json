@@ -563,7 +563,9 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 else:
                     parse_result = ''
                     parse_ci = set()
-                if parse_result != '':
+                if parse_result == '':
+                    update_text(result, '')
+                else:
                     parse_result = parse_result.strip().splitlines()
                     while len(parse_result) > 0 and parse_result[0] == '':
                         parse_result = parse_result[1:]
@@ -646,7 +648,9 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 else:
                     parse_result = ''
                     parse_ci = set()
-                if parse_result != '':
+                if parse_result == '':
+                    update_text(result_back, '')
+                else:
                     parse_result = parse_result.strip().splitlines()
                     while len(parse_result) > 0 and parse_result[0] == '':
                         parse_result = parse_result[1:]
