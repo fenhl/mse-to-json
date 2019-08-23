@@ -418,7 +418,8 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
     for card in cards:
         result = {
             'hasFoil': False,
-            'hasNonFoil': True
+            'hasNonFoil': True,
+            'rulings': []
         }
         result['borderColor'] = {
             'rgb(0,0,0)': 'black',
@@ -517,12 +518,10 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             else:
                 result['originalType'] = supertypes_and_types
             supertypes, types, subtypes = split_type_line(result['originalType'])
-            if len(supertypes) > 0:
-                result['supertypes'] = supertypes
-            if len(types) > 0:
-                result['types'] = types
+            result['supertypes'] = supertypes
+            result['types'] = types
+            result['subtypes'] = subtypes
             if len(subtypes) > 0:
-                result['subtypes'] = subtypes
                 result['type'] = '{} — {}'.format(' '.join(supertypes + types), ' '.join(subtypes))
             else:
                 result['type'] = ' '.join(supertypes + types)
@@ -632,12 +631,10 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 else:
                     result_back['originalType'] = supertypes_and_types
                 supertypes, types, subtypes = split_type_line(result_back['originalType'])
-                if len(supertypes) > 0:
-                    result_back['supertypes'] = supertypes
-                if len(types) > 0:
-                    result_back['types'] = types
+                result_back['supertypes'] = supertypes
+                result_back['types'] = types
+                result_back['subtypes'] = subtypes
                 if len(subtypes) > 0:
-                    result_back['subtypes'] = subtypes
                     result_back['type'] = '{} — {}'.format(' '.join(supertypes + types), ' '.join(subtypes))
                 else:
                     result_back['type'] = ' '.join(supertypes + types)
