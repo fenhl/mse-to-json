@@ -23,7 +23,7 @@ BASIC_LAND_TYPES = collections.OrderedDict([
 ])
 
 BUILTIN_WATERMARKS = {
-    #TODO some of these may have to be adjusted once they land in MTG JSON 4, see https://github.com/mtgjson/mtgjson/issues/382
+    # some of these are unofficial since MTG JSON watermark info is incomplete, see https://github.com/mtgjson/mtgjson/issues/382
     'mana symbol colorless': 'colorless',
     'mana symbol white': 'white',
     'mana symbol blue': 'blue',
