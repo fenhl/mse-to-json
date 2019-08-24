@@ -69,13 +69,6 @@ CARD_TYPES = [
     'Vanguard'
 ]
 
-MAINFRAME_STYLESHEETS = {
-    'm15-altered',
-    'm15-mainframe-tokens',
-    'm15-mainframe-dfc',
-    'm15-mainframe-planeswalker'
-}
-
 STYLESHEETS = {
     'COTWC-m15planeswalker': ('normal', '2015'),
     'm15': ('normal', '2015'),
@@ -473,25 +466,11 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             else:
                 result['manaCost'] = mana_cost
                 result['convertedManaCost'] = result['faceConvertedManaCost'] = converted_mana_cost(mana_cost)
-            if stylesheet in MAINFRAME_STYLESHEETS:
-                pass #TODO check if front color indicator style option (in card['styling data']) is enabled
-                #if 'indicator' in card and more_itertools.one(card['indicator']) != 'colorless':
-                #    color_indicator = more_itertools.one(card['indicator'])
-                #    if color_indicator.endswith(', multicolor'):
-                #        color_indicator = color_indicator[:-len(', multicolor')]
-                color_indicator = None
-            else:
-                # color indicators on legacy templates just use the 'card color' field, which is also used for card frame style
-                if 'card color' in card and more_itertools.one(card['card color']) != 'colorless':
-                    color_indicator = more_itertools.one(card['card color'])
-                    if color_indicator.endswith(', horizontal'):
-                        color_indicator = color_indicator[:-len(', horizontal')]
-                    if color_indicator.endswith(', multicolor'):
-                        color_indicator = color_indicator[:-len(', multicolor')]
-                    if color_indicator.endswith(', land'):
-                        color_indicator = color_indicator[:-len(', land')]
-                else:
-                    color_indicator = None
+            color_indicator = None #TODO check if front color indicator (for DFCs) or color indicator dot style option (in card['styling data']) is enabled
+            #if 'indicator' in card and more_itertools.one(card['indicator']) != 'colorless':
+            #    color_indicator = more_itertools.one(card['indicator'])
+            #    if color_indicator.endswith(', multicolor'):
+            #        color_indicator = color_indicator[:-len(', multicolor')]
             if color_indicator is None:
                 colors = ''.join(implicit_colors(mana_cost) or 'C')
             else:
