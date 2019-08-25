@@ -691,7 +691,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 result['watermark'] = watermark
             if 'illustrator' in card:
                 artist = more_itertools.one(card['illustrator'])
-                match = re.fullmatch('(.+?) *\\((?:[Cc]ard by |[Dd]esign:)(.*)\\)', artist) or re.fullmatch('(.+?) *\\| *[Dd]esigned by (.*)')
+                match = re.fullmatch('(.+?) *\\((?:[Cc]ard by |[Dd]esign:)(.*)\\)', artist) or re.fullmatch('(.+?) *\\| *[Dd]esigned by (.*)', artist)
                 if match:
                     if flavor == '':
                         flavor = 'Designed by {}'.format(match.group(2))
@@ -715,7 +715,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 #TODO watermark 2?
                 if 'illustrator 2' in card:
                     artist = more_itertools.one(card['illustrator 2'])
-                    match = re.fullmatch('(.+?) *\\((?:[Cc]ard by |[Dd]esign:)(.*)\\)', artist) or re.fullmatch('(.+?) *\\| *[Dd]esigned by (.*)')
+                    match = re.fullmatch('(.+?) *\\((?:[Cc]ard by |[Dd]esign:)(.*)\\)', artist) or re.fullmatch('(.+?) *\\| *[Dd]esigned by (.*)', artist)
                     if match:
                         if flavor == '':
                             flavor = 'Designed by {}'.format(match.group(2))
