@@ -808,8 +808,8 @@ def parse_mse_symbols(symbols_str):
             result += '{{{}}}'.format(symbols_str[0])
             symbols_str = symbols_str[1:]
             continue
-        if symbols_str[0] == 'D': # runic mana from Ruins of Doharum
-            result += '{A}'
+        if symbols_str[0] == 'V': # runic mana from Ruins of Doharum
+            result += '{V}'
             symbols_str = symbols_str[1:]
             continue
         match = re.fullmatch('([0-9]+)(.*)', symbols_str)
