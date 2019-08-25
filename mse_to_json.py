@@ -374,7 +374,7 @@ def implicit_colors(cost):
     colors = set()
     for part in cost[1:-1].split('}{'):
         colors |= cost_part_colors(part)
-    return [color for color in 'WUBRG' if color in colors]
+    return sorted(colors)
 
 def update_text(result_dict, new_text):
     if new_text:
@@ -492,11 +492,11 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                     'red': 'R',
                     'green': 'G'
                 }[color_indicator]
-                result['colorIndicator'] = [color.upper() for color in colors]
+                result['colorIndicator'] = sorted(color.upper() for color in colors)
             if colors == 'C':
                 result['colors'] = []
             else:
-                result['colors'] = [color.upper() for color in colors]
+                result['colors'] = sorted(color.upper() for color in colors)
             ci = set(implicit_colors(mana_cost)) | set(result.get('colorIndicator', []))
             supertypes_and_types = parse_mse_text(more_itertools.one(card['super type']))[0]
             subtypes = parse_mse_text(more_itertools.one(card['sub type']))[0].strip()
@@ -611,7 +611,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 if back_colors == 'C':
                     result_back['colors'] = []
                 else:
-                    result_back['colors'] = result_back['colorIndicator'] = [color.upper() for color in back_colors]
+                    result_back['colors'] = result_back['colorIndicator'] = sorted(color.upper() for color in back_colors)
                 ci |= set(result_back['colors'])
                 supertypes_and_types = parse_mse_text(more_itertools.one(card['super type 2']))[0]
                 subtypes = parse_mse_text(more_itertools.one(card['sub type 2']))[0].strip()
@@ -658,8 +658,8 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                     if 'loyalty 2' in card and more_itertools.one(card['loyalty 2']) != '':
                         result_back['loyalty'] = more_itertools.one(card['loyalty 2'])
             if result['layout'] == 'transform':
-                result_back['colorIdentity'] = sorted(ci, key='WUBRG'.index)
-            result['colorIdentity'] = sorted(ci, key='WUBRG'.index)
+                result_back['colorIdentity'] = sorted(ci)
+            result['colorIdentity'] = sorted(ci)
             if 'rarity' in card:
                 if more_itertools.one(card['rarity']) == 'basic land':
                     print('[ !! ] MTG JSON 4 does not support basic land rarity, changing {} to common'.format(card_name), file=sys.stderr)
