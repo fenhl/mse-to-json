@@ -446,8 +446,11 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             if result['layout'] == 'transform':
                 result['side'] = 'a'
                 result_back = {
+                    'borderColor': result['borderColor'],
+                    'frameVersion': STYLESHEETS[stylesheet][1],
                     'hasFoil': False,
                     'hasNonFoil': True,
+                    'layout': 'transform',
                     'side': 'b'
                 }
                 result_back['name'] = name_back = more_itertools.one(card['name 2']).replace('’', "'")
