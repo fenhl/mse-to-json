@@ -850,7 +850,8 @@ def split_type_line(type_line):
         elif card_type == '':
             pass # ignore extra spaces
         else:
-            raise ValueError('Unknown supertype or card type: {!r}'.format(card_type))
+            print('[ !! ] unknown supertype or card type: {!r}, assuming card type'.format(card_type))
+            types.append(card_type)
     return supertypes, types, subtypes
 
 if __name__ == '__main__':
