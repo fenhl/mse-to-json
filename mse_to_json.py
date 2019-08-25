@@ -462,10 +462,12 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             else:
                 mana_cost = ''
             if mana_cost == '':
-                result['convertedManaCost'] = result['faceConvertedManaCost'] = 0.0
+                result['convertedManaCost'] = 0.0
             else:
                 result['manaCost'] = mana_cost
-                result['convertedManaCost'] = result['faceConvertedManaCost'] = converted_mana_cost(mana_cost)
+                result['convertedManaCost'] = converted_mana_cost(mana_cost)
+            if result['layout'] != 'normal':
+                result['faceConvertedManaCost'] = result['convertedManaCost']
             color_indicator = None #TODO check if front color indicator (for DFCs) or color indicator dot style option (in card['styling data']) is enabled
             #if 'indicator' in card and more_itertools.one(card['indicator']) != 'colorless':
             #    color_indicator = more_itertools.one(card['indicator'])
