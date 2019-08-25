@@ -528,7 +528,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             elif 'level 1 text' in card:
                 level_parse_result, level_ci = parse_mse_text(more_itertools.one(card['level 1 text']))
                 ci |= level_ci
-                if 'loyalty cost 1' in card:
+                if 'loyalty cost 1' in card and more_itertools.one(card['loyalty cost 1']):
                     loyalty_cost = more_itertools.one(card['loyalty cost 1'])
                     text = '[{}]: {}'.format(loyalty_cost, level_parse_result)
                 else:
@@ -538,7 +538,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                         break
                     level_parse_result, level_ci = parse_mse_text(more_itertools.one(card['level {} text'.format(level)]))
                     ci |= level_ci
-                    if 'loyalty cost 1' in card:
+                    if 'loyalty cost {}'.format(level) in card and more_itertools.one(card['loyalty cost {}'.format(level)]):
                         loyalty_cost = more_itertools.one(card['loyalty cost {}'.format(level)])
                         text += '\n[{}]: {}'.format(loyalty_cost, level_parse_result)
                     else:
@@ -557,10 +557,9 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                     while len(parse_result) > 0 and parse_result[0] == '':
                         parse_result = parse_result[1:]
                     for i, line in enumerate(parse_result):
-                        if 'loyalty cost {}'.format(i + 1) in card:
+                        if 'loyalty cost {}'.format(i + 1) in card and more_itertools.one(card['loyalty cost {}'.format(i + 1)]):
                             loyalty_cost = more_itertools.one(card['loyalty cost {}'.format(i + 1)])
-                            if loyalty_cost != '':
-                                parse_result[i] = '[{}]: {}'.format(loyalty_cost, parse_result[i])
+                            parse_result[i] = '[{}]: {}'.format(loyalty_cost, parse_result[i])
                         while parse_result[i].endswith(' '):
                             parse_result[i] = parse_result[i][:-1]
                     update_text(result, '\n'.join(parse_result))
@@ -642,10 +641,9 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                     while len(parse_result) > 0 and parse_result[0] == '':
                         parse_result = parse_result[1:]
                     for i, line in enumerate(parse_result):
-                        if 'loyalty cost {}'.format(i + 5) in card:
+                        if 'loyalty cost {}'.format(i + 5) in card and more_itertools.one(card['loyalty cost {}'.format(i + 5)]):
                             loyalty_cost = more_itertools.one(card['loyalty cost {}'.format(i + 5)])
-                            if loyalty_cost != '':
-                                parse_result[i] = '[{}]: {}'.format(loyalty_cost, parse_result[i])
+                            parse_result[i] = '[{}]: {}'.format(loyalty_cost, parse_result[i])
                         while parse_result[i].endswith(' '):
                             parse_result[i] = parse_result[i][:-1]
                     update_text(result_back, '\n'.join(parse_result))
