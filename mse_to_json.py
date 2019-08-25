@@ -295,14 +295,14 @@ def converted_mana_cost(cost):
         if re.fullmatch(basics, part):
             # colored mana
             return 1
-        if part == 'A':
-            # runic mana from Ruins of Doharum
-            return 1
         if part == 'C':
             # colorless mana
             return 1
         if part == 'S':
             # snow mana
+            return 1
+        if part == 'V':
+            # runic mana from Ruins of Doharum
             return 1
         if part == 'X':
             # variable mana
@@ -341,14 +341,14 @@ def implicit_colors(cost):
         if re.fullmatch(basics, part):
             # colored mana
             return {part}
-        if part == 'A':
-            # runic mana from Ruins of Doharum
-            return set()
         if part == 'C':
             # colorless mana
             return set()
         if part == 'S':
             # snow mana
+            return set()
+        if part == 'V':
+            # runic mana from Ruins of Doharum
             return set()
         if part == 'X':
             # variable mana
