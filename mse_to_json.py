@@ -377,7 +377,13 @@ def implicit_colors(cost):
     return [color for color in 'WUBRG' if color in colors]
 
 def update_text(result_dict, new_text):
-    result_dict['text'] = result_dict['originalText'] = new_text
+    if new_text:
+        result_dict['text'] = result_dict['originalText'] = new_text
+    else:
+        if 'text' in result_dict:
+            del result_dict['text']
+        if 'originalText' in result_dict:
+            del result_dict['originalText']
 
 def convert_mse_set(set_file, *, set_code=None, version=None):
     # open MSE data file and parse top level
