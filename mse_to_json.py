@@ -529,7 +529,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 level_parse_result, level_ci = parse_mse_text(more_itertools.one(card['level 1 text']))
                 ci |= level_ci
                 if 'loyalty cost 1' in card:
-                    loyalty_cost = more_itertools.one(card['loyalty cost 1']).replace('\u2212', '-')
+                    loyalty_cost = more_itertools.one(card['loyalty cost 1'])
                     text = '[{}]: {}'.format(loyalty_cost, level_parse_result)
                 else:
                     text = level_parse_result
@@ -539,7 +539,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                     level_parse_result, level_ci = parse_mse_text(more_itertools.one(card['level {} text'.format(level)]))
                     ci |= level_ci
                     if 'loyalty cost 1' in card:
-                        loyalty_cost = more_itertools.one(card['loyalty cost {}'.format(level)]).replace('\u2212', '-')
+                        loyalty_cost = more_itertools.one(card['loyalty cost {}'.format(level)])
                         text += '\n[{}]: {}'.format(loyalty_cost, level_parse_result)
                     else:
                         text += '\n{}'.format(level_parse_result)
@@ -558,7 +558,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                         parse_result = parse_result[1:]
                     for i, line in enumerate(parse_result):
                         if 'loyalty cost {}'.format(i + 1) in card:
-                            loyalty_cost = more_itertools.one(card['loyalty cost {}'.format(i + 1)]).replace('\u2212', '-')
+                            loyalty_cost = more_itertools.one(card['loyalty cost {}'.format(i + 1)])
                             if loyalty_cost != '':
                                 parse_result[i] = '[{}]: {}'.format(loyalty_cost, parse_result[i])
                         while parse_result[i].endswith(' '):
@@ -643,7 +643,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                         parse_result = parse_result[1:]
                     for i, line in enumerate(parse_result):
                         if 'loyalty cost {}'.format(i + 5) in card:
-                            loyalty_cost = more_itertools.one(card['loyalty cost {}'.format(i + 5)]).replace('\u2212', '-')
+                            loyalty_cost = more_itertools.one(card['loyalty cost {}'.format(i + 5)])
                             if loyalty_cost != '':
                                 parse_result[i] = '[{}]: {}'.format(loyalty_cost, parse_result[i])
                         while parse_result[i].endswith(' '):
@@ -763,11 +763,6 @@ def mtgjson_card_sort_key(card):
     number, suffix = match.groups()
     number = int(number)
     return number, suffix, card['name'], card.get('multiverseid')
-
-def normalized_rules_text(text):
-    text = text.replace('\u2212', '-') # replace Unicode minus used in Oracle text with ASCII hyphen-minus used in MSE
-    text = re.sub(' ?\\(.*?\\)', '', text) # remove reminder text
-    return text
 
 def parse_mse_data(text):
     result = collections.defaultdict(list)
