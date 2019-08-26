@@ -518,7 +518,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                     ci.add(land_color)
             if result['layout'] == 'saga':
                 text, parse_ci = parse_mse_text(more_itertools.one(card['special text']))
-                if more_itertools.one(card.get('has styling', ['no'])) == 'yes':
+                if more_itertools.one(card.get('has styling', ['false'])) == 'true':
                     styling_data = parse_mse_data(more_itertools.one(card['styling data']))
                 else:
                     styling_data = parse_mse_data(more_itertools.one(parse_mse_data(more_itertools.one(set_data['styling']))['magic-m15-saga']))
