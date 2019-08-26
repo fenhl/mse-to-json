@@ -608,7 +608,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                         for part in more_itertools.one(card['indicator 2']).split(', ')
                         if part not in {'colorless', 'multicolor', 'artifact', 'land', 'horizontal'}
                     )
-                if back_colors == 'C':
+                if back_colors in {'', 'C'}:
                     result_back['colors'] = []
                 else:
                     result_back['colors'] = result_back['colorIndicator'] = sorted(color.upper() for color in back_colors)
