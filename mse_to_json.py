@@ -847,7 +847,7 @@ def split_type_line(type_line):
             supertypes.append(card_type)
         elif card_type in CARD_TYPES:
             types.append(card_type)
-        elif card_type in ['Bas1c', 'B\u200casic']:
+        elif card_type in {'Bas1c', 'B\u200basic', 'B\u200casic'}:
             #HACK to support the PlaneSculptors booster layout bug workaround
             supertypes.append('Basic')
         elif card_type == '':
