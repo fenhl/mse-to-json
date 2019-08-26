@@ -702,7 +702,8 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 else:
                     result['artist'] = artist
             elif 'image' in card and more_itertools.one(card['image']) != '':
-                raise ValueError('Missing artist credit on {}'.format(card_name))
+                print('[ !! ] missing artist credit on {}'.format(card_name), file=sys.stderr)
+                result['artist'] = '(unknown)'
             else:
                 result['artist'] = '(no image)'
             if flavor != '':
@@ -726,7 +727,8 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                     else:
                         result_back['artist'] = artist
                 elif 'image 2' in card and more_itertools.one(card['image 2']) != '':
-                    raise ValueError('Missing artist credit on {}'.format(card_name))
+                    print('[ !! ] missing artist credit on {} (back face of {})'.format(name_back, card_name), file=sys.stderr)
+                    result_back['artist'] = '(unknown)'
                 else:
                     result_back['artist'] = '(no image)'
                 if flavor != '':
@@ -851,7 +853,7 @@ def split_type_line(type_line):
         elif card_type == '':
             pass # ignore extra spaces
         else:
-            print('[ !! ] unknown supertype or card type: {!r}, assuming card type'.format(card_type))
+            print('[ !! ] unknown supertype or card type: {!r}, assuming card type'.format(card_type), file=sys.stderr)
             types.append(card_type)
     return supertypes, types, subtypes
 
