@@ -327,14 +327,6 @@ def converted_mana_cost(cost):
         raise ValueError('Cost must start with { and end with }')
     return float(sum(converted_cost_part(part) for part in cost[1:-1].split('}{')))
 
-def image_name(card_name):
-    result = card_name.lower()
-    result = result.replace('‘', "'").replace('’', "'")
-    for c in result:
-        if c not in string.printable:
-            raise NotImplementedError('Failed to generate image name from {} due to {!r}'.format(card_name, c))
-    return result
-
 def implicit_colors(cost):
     def cost_part_colors(part):
         basics = '[WUBRG]'
@@ -427,7 +419,10 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
             'rgb(222,127,50)': 'bronze',
             'rgb(255,255,255)': 'white'
         }[more_itertools.one(card.get('border color', set_info.get('border color', ['rgb(0,0,0)'])))]
-        result['name'] = card_name = more_itertools.one(card['name']).replace('’', "'")
+        if '‘' in more_itertools.one(card['name']):
+            result['name'] = card_name = more_itertools.one(card['name'])
+        else:
+            result['name'] = card_name = more_itertools.one(card['name']).replace('’', "'")
         try:
             if 'stylesheet' in card:
                 stylesheet = more_itertools.one(card['stylesheet'])
@@ -453,7 +448,10 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                     'layout': 'transform',
                     'side': 'b'
                 }
-                result_back['name'] = name_back = more_itertools.one(card['name 2']).replace('’', "'")
+                if '‘' in more_itertools.one(card['name 2']):
+                    result_back['name'] = name_back = more_itertools.one(card['name 2'])
+                else:
+                    result_back['name'] = name_back = more_itertools.one(card['name 2']).replace('’', "'")
                 result['names'] = [
                     card_name,
                     name_back
