@@ -690,7 +690,23 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 watermark = ''
             if watermark not in ('', 'skip'):
                 result['watermark'] = watermark
-            if 'illustrator' in card:
+            if 'notes' in card and any(line.startswith('!artist ') for line in in more_itertools.one(card['notes']).splitlines()):
+                artist = more_itertools.one(
+                    line[len('!artist '):]
+                    for line in in more_itertools.one(card['notes']).splitlines()
+                    if line.startswith('!artist ')
+                )
+                if any(line.startswith('!design ') for line in in more_itertools.one(card['notes']).splitlines()):
+                    designer = more_itertools.one(
+                        line[len('!design '):]
+                        for line in in more_itertools.one(card['notes']).splitlines()
+                        if line.startswith('!design ')
+                    )
+                    if flavor == '':
+                        flavor = 'Designed {}{}'.format('' if designer.startswith('with ') else 'by ', designer)
+                    else:
+                        flavor += '\nDesigned {}{}'.format('' if designer.startswith('with ') else 'by ', designer)
+            elif 'illustrator' in card:
                 artist = more_itertools.one(card['illustrator'])
                 match = re.fullmatch('(.+?) *\\(([Cc]ard by |[Dd]esign:)(.*)\\)', artist) or re.fullmatch('(.+?) *\\| *[Dd]esigned (by|with) (.*)', artist)
                 if match:
