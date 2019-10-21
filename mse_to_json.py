@@ -812,12 +812,14 @@ def extract_images(set_file, img_dir, *, set_code=None, version=None, set_json=N
     for card in set_json['cards']:
         with set_file.open(card['imageID']) as img_f:
             with PIL.Image.open(img_f) as img:
-                exif = piexif.load(img.info.get('exif', piexif.dump({})))
-                if 'artist' in card:
+                if 'artist' in card and image.mode != 'RGBA':
+                    exif = piexif.load(img.info.get('exif', piexif.dump({})))
                     exif['0th'][piexif.ImageIFD.Artist] = card['artist'].encode('utf-8')
                     if exif['thumbnail']:
                         exif['1st'][piexif.ImageIFD.Artist] = card['artist'].encode('utf-8')
-                img.save(img_dir / f'{card["number"]}.jpg', exif=piexif.dump(exif))
+                    img.save(img_dir / f'{card["number"]}.jpg', exif=piexif.dump(exif))
+                else:
+                    img.save(img_dir / f'{card["number"]}.png')
 
 def mtgjson_card_sort_key(card):
     match = re.fullmatch('([0-9]+)(.*)', card['number'])
