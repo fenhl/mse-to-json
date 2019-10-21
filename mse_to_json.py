@@ -9,10 +9,13 @@ import html.parser
 import io
 import itertools
 import json
-import more_itertools # package: more-itertools
+import pathlib
 import re
 import string
 import zipfile
+
+import PIL.Image # PyPI: Pillow
+import more_itertools # PyPI: more-itertools
 
 BASIC_LAND_TYPES = collections.OrderedDict([
     ('Plains', 'W'),
@@ -95,12 +98,17 @@ STYLESHEETS = {
 class CommandLineArgs:
     def __init__(self, args=sys.argv[1:]):
         self.decode_only = False
+        self.images = None
+        self.quiet = False
         self.set_code = None
         self.set_version = None
         positional_args = []
         mode = None
         for i, arg in enumerate(args):
-            if mode == 'set-code':
+            if mode == 'images':
+                self.images = pathlib.Path(arg)
+                mode = None
+            elif mode == 'set-code':
                 self.set_code = arg
                 mode = None
             elif arg.startswith('-'):
@@ -110,6 +118,12 @@ class CommandLineArgs:
                         break
                     elif arg == '--decode':
                         self.decode_only = True
+                    elif arg == '--images':
+                        mode = 'images'
+                    elif arg.startswith('--images='):
+                        self.images = pathlib.Path(arg[len('--images='):])
+                    elif arg == '--quiet':
+                        self.quiet = True
                     elif arg == '--set-code':
                         mode = 'set-code'
                     elif arg.startswith('--set-code='):
@@ -122,16 +136,27 @@ class CommandLineArgs:
                     for j, short_flag in enumerate(arg):
                         if j == 0:
                             continue
-                        raise ValueError('Unrecognized flag: -{}'.format(short_flag))
+                        if short_flag == 'd':
+                            self.decode_only = True
+                        elif short_flag == 'i':
+                            if len(arg) > i + 1:
+                                self.images = pathlib.Path(arg[i + 1:])
+                            else:
+                                mode = 'images'
+                            break
+                        elif short_flag == 'q':
+                            self.quiet = True
+                        else:
+                            raise ValueError('Unrecognized flag: -{}'.format(short_flag))
             else:
                 positional_args.append(arg)
         if len(positional_args) == 0:
             self.set_file = None # interactive input
-        if len(positional_args) == 1 and positional_args[0] == '-':
+        elif positional_args[0] == '-':
             self.set_file = zipfile.ZipFile(io.BytesIO(sys.stdin.buffer.read()))
-        elif len(positional_args) == 1:
-            self.set_file = zipfile.ZipFile(positional_args[0])
         else:
+            self.set_file = zipfile.ZipFile(positional_args[0])
+        if len(positional_args) > 1:
             raise ValueError('Unexpected positional argument')
 
 class OrderedEnum(enum.Enum):
@@ -377,7 +402,7 @@ def update_text(result_dict, new_text):
         if 'originalText' in result_dict:
             del result_dict['originalText']
 
-def convert_mse_set(set_file, *, set_code=None, version=None):
+def convert_mse_set(set_file, *, set_code=None, version=None, include_image_ids=False):
     # open MSE data file and parse top level
     with set_file.open('set') as set_data_f:
         set_data_str = set_data_f.read().decode('utf-8')
@@ -475,6 +500,8 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 result['convertedManaCost'] = converted_mana_cost(mana_cost)
             if result['layout'] != 'normal':
                 result['faceConvertedManaCost'] = result['convertedManaCost']
+            if include_image_ids and 'image' in card and more_itertools.one(card['image']):
+                result['imageID'] = more_itertools.one(card['image'])
             color_indicator = None #TODO check if front color indicator (for DFCs) or color indicator dot style option (in card['styling data']) is enabled
             #if 'indicator' in card and more_itertools.one(card['indicator']) != 'colorless':
             #    color_indicator = more_itertools.one(card['indicator'])
@@ -582,6 +609,8 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
                 result_back['names'] = result['names']
                 result_back['convertedManaCost'] = result['convertedManaCost']
                 result_back['faceConvertedManaCost'] = 0.0
+                if include_image_ids and 'image 2' in card and more_itertools.one(card['image 2']):
+                    result_back['imageID'] = more_itertools.one(card['image 2'])
                 back_colors = more_itertools.one(card['card color 2'])
                 if 'land' in back_colors.split(', '):
                     back_colors = 'colorless'
@@ -774,6 +803,13 @@ def convert_mse_set(set_file, *, set_code=None, version=None):
     set_json['baseSetSize'] = set_json['totalSetSize'] = len(sorted_cards)
     return set_json
 
+def extract_images(set_file, img_dir, *, set_code=None, version=None, set_json=None):
+    if set_json is None:
+        set_json = convert_mse_set(set_file, set_code=set_code, version=version, include_image_ids=True)
+    for card in set_json['cards']:
+        with set_file.open(f'image{card["imageID"]}') as img_f:
+            PIL.Image.open(img_f).save(img_dir / f'{card["number"]}.png')
+
 def mtgjson_card_sort_key(card):
     match = re.fullmatch('([0-9]+)(.*)', card['number'])
     assert match
@@ -878,19 +914,26 @@ if __name__ == '__main__':
         args = CommandLineArgs()
     except ValueError as e:
         sys.exit('[!!!!] {}'.format(e.args[0]))
-    if args.decode_only:
-        with args.set_file as set_file:
+    with args.set_file as set_file:
+        set_json = None
+        if args.quiet:
+            pass # don't do anything except maybe exporting images
+        elif args.decode_only:
             with set_file.open('set') as set_data_f:
                 set_data_str = set_data_f.read().decode('utf-8')
-        if set_data_str.startswith('\ufeff'):
-            set_data_str = set_data_str[1:]
-        sys.stdout.write(set_data_str)
-    else:
-        set_code = args.set_code
-        if args.set_file is None:
-            sys.exit('[!!!!] this version of mse-to-json does not support manual card input')
+            if set_data_str.startswith('\ufeff'):
+                set_data_str = set_data_str[1:]
+            sys.stdout.write(set_data_str)
         else:
-            with args.set_file as set_file:
-                set_json = convert_mse_set(set_file, set_code=set_code, version=args.set_version)
-        json.dump(set_json, sys.stdout, indent=4, sort_keys=True)
-        print()
+            if args.set_file is None:
+                sys.exit('[!!!!] this version of mse-to-json does not support manual card input')
+            else:
+                set_json = convert_mse_set(set_file, set_code=args.set_code, version=args.set_version, include_image_ids=args.images is not None)
+            filtered_set_json = copy.deepcopy(set_json)
+            for card in filtered_set_json['cards']:
+                if 'imageID' in card:
+                    del card['imageID']
+            json.dump(filtered_set_json, sys.stdout, indent=4, sort_keys=True)
+            print()
+        if args.images is not None:
+            extract_images(args.set_file, args.images, set_code=args.set_code, version=args.set_version, set_json=set_json)
