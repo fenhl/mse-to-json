@@ -151,9 +151,7 @@ class CommandLineArgs:
                             raise ValueError('Unrecognized flag: -{}'.format(short_flag))
             else:
                 positional_args.append(arg)
-        if len(positional_args) == 0:
-            self.set_file = None # interactive input
-        elif positional_args[0] == '-':
+        if len(positional_args) == 0 or positional_args[0] == '-':
             self.set_file = zipfile.ZipFile(io.BytesIO(sys.stdin.buffer.read()))
         else:
             self.set_file = zipfile.ZipFile(positional_args[0])
