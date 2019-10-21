@@ -807,7 +807,7 @@ def extract_images(set_file, img_dir, *, set_code=None, version=None, set_json=N
     if set_json is None:
         set_json = convert_mse_set(set_file, set_code=set_code, version=version, include_image_ids=True)
     for card in set_json['cards']:
-        with set_file.open(f'image{card["imageID"]}') as img_f:
+        with set_file.open(card['imageID']) as img_f:
             PIL.Image.open(img_f).save(img_dir / f'{card["number"]}.png')
 
 def mtgjson_card_sort_key(card):
