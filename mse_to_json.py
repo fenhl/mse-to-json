@@ -16,6 +16,7 @@ import zipfile
 
 import PIL.Image # PyPI: Pillow
 import more_itertools # PyPI: more-itertools
+import piexif # PyPI: piexif
 
 BASIC_LAND_TYPES = collections.OrderedDict([
     ('Plains', 'W'),
@@ -810,7 +811,13 @@ def extract_images(set_file, img_dir, *, set_code=None, version=None, set_json=N
         set_json = convert_mse_set(set_file, set_code=set_code, version=version, include_image_ids=True)
     for card in set_json['cards']:
         with set_file.open(card['imageID']) as img_f:
-            PIL.Image.open(img_f).save(img_dir / f'{card["number"]}.png')
+            with PIL.Image.open(img_f) as img:
+                exif = piexif.load(img.info.get('exif', piexif.dump({})))
+                if 'artist' in card:
+                    exif['0th'][piexif.ImageIFD.Artist] = card['artist'].encode('utf-8')
+                    if exif['thumbnail']:
+                        exif['1st'][piexif.ImageIFD.Artist] = card['artist'].encode('utf-8')
+                img.save(img_dir / f'{card["number"]}.jpg', exif=piexif.dump(exif))
 
 def mtgjson_card_sort_key(card):
     match = re.fullmatch('([0-9]+)(.*)', card['number'])
