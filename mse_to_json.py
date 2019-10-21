@@ -444,7 +444,9 @@ def convert_mse_set(set_file, *, set_code=None, version=None, include_image_ids=
             'rgb(222,127,50)': 'bronze',
             'rgb(255,255,255)': 'white'
         }[more_itertools.one(card.get('border color', set_info.get('border color', ['rgb(0,0,0)'])))]
-        if '‘' in more_itertools.one(card['name']):
+        if 'name' not in card:
+            card_name = None
+        elif '‘' in more_itertools.one(card['name']):
             result['name'] = card_name = more_itertools.one(card['name'])
         else:
             result['name'] = card_name = more_itertools.one(card['name']).replace('’', "'")
