@@ -140,8 +140,8 @@ class CommandLineArgs:
                         if short_flag == 'd':
                             self.decode_only = True
                         elif short_flag == 'i':
-                            if len(arg) > i + 1:
-                                self.images = pathlib.Path(arg[i + 1:])
+                            if len(arg) > j + 1:
+                                self.images = pathlib.Path(arg[j + 1:])
                             else:
                                 mode = 'images'
                             break
