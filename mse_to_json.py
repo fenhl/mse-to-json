@@ -812,7 +812,7 @@ def extract_images(set_file, img_dir, *, set_code=None, version=None, set_json=N
     for card in set_json['cards']:
         with set_file.open(card['imageID']) as img_f:
             with PIL.Image.open(img_f) as img:
-                if 'artist' in card and image.mode != 'RGBA':
+                if 'artist' in card and img.mode != 'RGBA':
                     exif = piexif.load(img.info.get('exif', piexif.dump({})))
                     exif['0th'][piexif.ImageIFD.Artist] = card['artist'].encode('utf-8')
                     if exif['thumbnail']:
