@@ -194,6 +194,7 @@ class MSECardSortKey(OrderedEnum):
 
     @classmethod
     def from_card(cls, cards, card):
+        # get front face's name
         if 'names' in card:
             name = card['names'][0]
             face_idx = card['names'].index(card['name'])
@@ -207,6 +208,11 @@ class MSECardSortKey(OrderedEnum):
         else:
             name = card.get('printedName', card['name'])
             face_idx = 0
+        # normalize name (translated from sort_name in magic.mse-game/script)
+        name = re.sub('^(The|An?) ', '', name)
+        name = re.sub("(,|'|’)", '', name)
+        name = name.lower()
+        # determine category
         if 'colors' in card and len(card['colors']) == 1:
             key = cls[more_itertools.one(card['colors']).upper()]
         elif 'colors' in card and len(card['colors']) > 1:
