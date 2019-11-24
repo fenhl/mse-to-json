@@ -954,7 +954,7 @@ if __name__ == '__main__':
             if args.output is None:
                 sys.stdout.write(set_data_str)
             else:
-                with args.output.open('w') as f:
+                with args.output.open('w', encoding='utf-8') as f:
                     f.write(set_data_str)
         else:
             if args.set_file is None:
@@ -969,7 +969,7 @@ if __name__ == '__main__':
                 json.dump(filtered_set_json, sys.stdout, indent=4, sort_keys=True)
                 print()
             else:
-                with args.output.open('w') as f:
+                with args.output.open('w', encoding='utf-8') as f:
                     json.dump(filtered_set_json, f, indent=4, sort_keys=True)
                     print(file=f)
         if args.images is not None:
