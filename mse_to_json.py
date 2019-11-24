@@ -100,6 +100,7 @@ class CommandLineArgs:
     def __init__(self, args=sys.argv[1:]):
         self.decode_only = False
         self.images = None
+        self.output = None
         self.quiet = False
         self.set_code = None
         self.set_version = None
@@ -108,6 +109,9 @@ class CommandLineArgs:
         for i, arg in enumerate(args):
             if mode == 'images':
                 self.images = pathlib.Path(arg)
+                mode = None
+            elif mode == 'output':
+                self.output = pathlib.Path(arg)
                 mode = None
             elif mode == 'set-code':
                 self.set_code = arg
@@ -123,6 +127,10 @@ class CommandLineArgs:
                         mode = 'images'
                     elif arg.startswith('--images='):
                         self.images = pathlib.Path(arg[len('--images='):])
+                    elif arg == '--output':
+                        mode = 'output'
+                    elif arg.startswith('--output='):
+                        self.output = pathlib.Path(arg[len('--output='):])
                     elif arg == '--quiet':
                         self.quiet = True
                     elif arg == '--set-code':
@@ -145,6 +153,11 @@ class CommandLineArgs:
                             else:
                                 mode = 'images'
                             break
+                        elif short_flag == 'o':
+                            if len(arg) > j + 1:
+                                self.output = pathlib.Path(arg[j + 1:])
+                            else:
+                                mode = 'output'
                         elif short_flag == 'q':
                             self.quiet = True
                         else:
@@ -938,7 +951,11 @@ if __name__ == '__main__':
                 set_data_str = set_data_f.read().decode('utf-8')
             if set_data_str.startswith('\ufeff'):
                 set_data_str = set_data_str[1:]
-            sys.stdout.write(set_data_str)
+            if args.output is None:
+                sys.stdout.write(set_data_str)
+            else:
+                with args.output.open('w') as f:
+                    f.write(set_data_str)
         else:
             if args.set_file is None:
                 sys.exit('[!!!!] this version of mse-to-json does not support manual card input')
@@ -948,7 +965,12 @@ if __name__ == '__main__':
             for card in filtered_set_json['cards']:
                 if 'imageID' in card:
                     del card['imageID']
-            json.dump(filtered_set_json, sys.stdout, indent=4, sort_keys=True)
-            print()
+            if args.output is None:
+                json.dump(filtered_set_json, sys.stdout, indent=4, sort_keys=True)
+                print()
+            else:
+                with args.output.open('w') as f:
+                    json.dump(filtered_set_json, f, indent=4, sort_keys=True)
+                    print(file=f)
         if args.images is not None:
             extract_images(args.set_file, args.images, set_code=args.set_code, version=args.set_version, set_json=set_json)
