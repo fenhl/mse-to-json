@@ -92,6 +92,7 @@ STYLESHEETS = {
     'm15-saga': ('saga', '2015'),
     'm15-textless-land': ('normal', '2015'),
     'new': ('normal', '2003'),
+    'new-artbg': ('normal', '2003'),
     'new-planeswalker': ('normal', '2003'),
     'new-planeswalker-4abil-clear': ('normal', '2003')
 }
@@ -473,7 +474,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None, include_image_ids=
                 stylesheet = more_itertools.one(card['stylesheet'])
             else:
                 stylesheet = more_itertools.one(set_data['stylesheet'])
-            if stylesheet in ('m15-mainframe-tokens', 'm15-token', 'm15-token-clear'):
+            if stylesheet in ('m15-mainframe-tokens', 'm15-token', 'm15-token-artbg', 'm15-token-clear'):
                 print('[ ** ] skipping token {}'.format(card_name), file=sys.stderr)
                 continue
             elif stylesheet in ('m15-emblem-acorntail', 'm15-emblem-name-cut', 'm15-emblem-cajun'):
