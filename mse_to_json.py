@@ -478,7 +478,7 @@ def convert_mse_set(set_file, *, set_code=None, version=None, include_image_ids=
                 print('[ ** ] skipping token {}'.format(card_name), file=sys.stderr)
                 continue
             elif stylesheet in ('m15-emblem-acorntail', 'm15-emblem-name-cut', 'm15-emblem-cajun'):
-                print('[ ** ] skipping emblem for {}'.format(more_itertools.one(card['sub type'])), file=sys.stderr)
+                print('[ ** ] skipping emblem for {}'.format(more_itertools.one(card['name'])), file=sys.stderr)
                 continue
             try:
                 result['layout'], result['frameVersion'] = STYLESHEETS[stylesheet]
