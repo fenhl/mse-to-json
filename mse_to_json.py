@@ -3,6 +3,7 @@
 import sys
 
 import collections
+import copy
 import datetime
 import enum
 import html.parser
